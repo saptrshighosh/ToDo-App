@@ -1,5 +1,3 @@
-# ToDo-App
-
 # To-Do List - Daily Planner
 
 A simple, beautiful, and feature-rich to-do list application to help you organize your day.
