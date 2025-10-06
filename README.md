@@ -29,16 +29,10 @@ This application is designed to be incredibly simple to set up. All you need is 
 * **Delete a Task**: Hover over a task and click the "Delete" button.
 * **Navigate Between Days**: Use the "Yesterday", "Today", "Tomorrow", and "History" buttons to view tasks for different days.
 
-### Desktop Shortcut (for Windows Users) ショートカット
+### Desktop Shortcut
 
 For easier access, you can create a desktop shortcut that opens the app directly.
 
 1.  **Right-click on your desktop** and go to **New > Shortcut**.
 2.  In the "Type the location of the item" field, click **Browse...** and navigate to the `index.html` file inside the project folder.
 3.  Click **Next**, give your shortcut a name (e.g., "To-Do App"), and click **Finish**.
-
-**(Optional) Change the Shortcut Icon:**
-
-1.  **Right-click** on the new shortcut and select **Properties**.
-2.  In the "Web Document" tab, click **Change Icon...**.
-3.  Click **Browse...** and navigate to the `images` folder inside your project. Select the `punchy.ico` file and click **OK**.
