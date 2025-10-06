@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your To-Do List</title>
+    <link rel="icon" type="image/png" href="images/punchy.ico">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="water-glow" id="waterGlow">
+            <div class="water-orb">
+                <div class="water-inner"></div>
+                <div class="water-particles"></div>
+                <div class="water-ripples"></div>
+            </div>
+        </div>
+
+        <header class="header">
+            <div class="greeting">
+                <h1 class="greeting-text">Hey <span id="userName" class="editable-name" contenteditable="true" spellcheck="false">Shayaan<span class="caret" aria-hidden="true"></span></span>, ready to plan your day?</h1>
+                <p class="subtitle">Things you can do</p>
+            </div>
+            
+            <div class="theme-toggle">
+                <div class="toggle-container">
+                    <span class="toggle-label">MODE</span>
+                    <div class="toggle-switch" id="themeToggle">
+                        <div class="toggle-handle"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav class="pill-navigation">
+            <button class="pill-btn active" data-day="yesterday">
+                <span class="pill-text">Yesterday</span>
+                <span class="pill-count" id="yesterdayCount">0</span>
+            </button>
+            <button class="pill-btn" data-day="today">
+                <span class="pill-text">Today</span>
+                <span class="pill-count" id="todayCount">0</span>
+            </button>
+            <button class="pill-btn" data-day="tomorrow">
+                <span class="pill-text">Tomorrow</span>
+                <span class="pill-count" id="tomorrowCount">0</span>
+            </button>
+            <button class="pill-btn" data-day="history">
+                <span class="pill-text">History</span>
+            </button>
+        </nav>
+
+        <main class="main-content">
+            <section class="current-day" id="currentDaySection">
+                <div class="day-header">
+                    <h2 class="day-name" id="currentDay">TODAY</h2>
+                    <p class="day-date" id="currentDate">April, 14 2025 - 9:41am</p>
+                    <div class="day-stats" id="dayStats">
+                        <span class="stat-item">
+                            <span class="stat-number" id="totalTasks">0</span>
+                            <span class="stat-label">Total</span>
+                        </span>
+                        <span class="stat-item">
+                            <span class="stat-number" id="completedTasks">0</span>
+                            <span class="stat-label">Done</span>
+                        </span>
+                        <span class="stat-item">
+                            <span class="stat-number" id="remainingTasks">0</span>
+                            <span class="stat-label">Left</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="task-list" id="taskList">
+                    </div>
+
+                <div class="add-task-container">
+                    <div class="input-wrapper">
+                        <input type="text" id="taskInput" placeholder="write what to do" class="task-input">
+                        <button class="add-btn" id="addTaskBtn" aria-label="Add task">Add</button>
+                    </div>
+                    
+                    <div class="editing-animation" id="editingAnimation">
+                        <div class="animation-bar"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="history-section" id="historySection" style="display: none;">
+                <div class="history-header">
+                    <h2 class="history-title">Task History</h2>
+                    <p class="history-subtitle">Your productivity journey</p>
+                </div>
+
+                <div class="history-filters">
+                    <button class="filter-btn active" data-period="week">This Week</button>
+                    <button class="filter-btn" data-period="month">This Month</button>
+                    <button class="filter-btn" data-period="all">All Time</button>
+                </div>
+
+                <div class="history-content" id="historyContent">
+                    </div>
+            </section>
+        </main>
+        
+        <div class="pomodoro-container" id="pomodoroContainer">
+            <div class="pomodoro-header" id="pomodoroHeader">
+                <span class="pomodoro-title">Pomodoro</span>
+                <div class="pomodoro-buttons">
+                    <button class="pomodoro-pin" id="pomodoroPin">📌</button>
+                    <button class="pomodoro-close" id="pomodoroClose">✖</button>
+                </div>
+            </div>
+            <div class="pomodoro-timer">
+                <svg class="pomodoro-svg" width="120" height="120" viewBox="0 0 120 120">
+                    <circle class="pomodoro-bg" cx="60" cy="60" r="54"/>
+                    <circle class="pomodoro-progress" cx="60" cy="60" r="54" transform="rotate(-90 60 60)"/>
+                </svg>
+                <div class="pomodoro-time" id="pomodoroTime">25:00</div>
+            </div>
+            <div class="pomodoro-controls">
+                <button class="pomodoro-control" id="pomodoroPlayPause">▶️</button>
+                <button class="pomodoro-control" id="pomodoroReset">🔄</button>
+                <button class="pomodoro-control" id="pomodoroSettings">⚙️</button>
+            </div>
+            <div class="pomodoro-settings" id="pomodoroSettingsPanel">
+                <div class="pomodoro-setting">
+                    <label for="pomodoroDuration">Focus</label>
+                    <input type="number" id="pomodoroDuration" value="25" min="1">
+                </div>
+                <div class="pomodoro-setting">
+                    <label for="shortBreakDuration">Short Break</label>
+                    <input type="number" id="shortBreakDuration" value="5" min="1">
+                </div>
+                <div class="pomodoro-setting">
+                    <label for="longBreakDuration">Long Break</label>
+                    <input type="number" id="longBreakDuration" value="15" min="1">
+                </div>
+            </div>
+        </div>
+        
+        <div class="ambient-container" id="ambientContainer">
+            <div class="ambient-header" id="ambientHeader">
+                <span class="ambient-title">Ambient</span>
+                <div class="ambient-buttons">
+                    <button class="ambient-pin" id="ambientPin">📌</button>
+                    <button class="ambient-close" id="ambientClose">✖</button>
+                </div>
+            </div>
+            <div class="ambient-controls">
+                <button class="ambient-control" id="ambientPlayPause">▶️</button>
+                <input type="range" class="ambient-volume" id="ambientVolume" min="0" max="1" step="0.01" value="0.5">
+            </div>
+            <div class="ambient-sounds">
+                <button class="ambient-sound" data-sound="bird">🐦</button>
+                <button class="ambient-sound" data-sound="rain">🌧️</button>
+                <button class="ambient-sound" data-sound="rainThunder">⛈️</button>
+                <button class="ambient-sound" data-sound="crickets">🦗</button>
+            </div>
+        </div>
+    </div>
+    
+    <audio id="websiteOpenSound" src="sounds/website-open.mp3"></audio>
+    <audio id="taskAddSound" src="sounds/task-add.mp3"></audio>
+    <audio id="allTasksFinishedSound" src="sounds/all-tasks-finished.mp3"></audio>
+    <audio id="timerStartSound" src="sounds/timer-start.mp3"></audio>
+    <audio id="birdSound" src="sounds/birds.mp3" loop></audio>
+    <audio id="rainSound" src="sounds/rain.mp3" loop></audio>
+    <audio id="rainThunderSound" src="sounds/rain+thunder.mp3" loop></audio>
+    <audio id="cricketsSound" src="sounds/crickets.mp3" loop></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
