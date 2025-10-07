@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your To-Do List</title>
-    <link rel="icon" type="image/png" href="images/punchy.ico">
+    <title>To-Do List - Daily Planner</title>
+    
+    <link rel="icon" type="image/x-icon" href="images/punchy.ico">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -19,7 +21,7 @@
 
         <header class="header">
             <div class="greeting">
-                <h1 class="greeting-text">Hey <span id="userName" class="editable-name" contenteditable="true" spellcheck="false">Shayaan<span class="caret" aria-hidden="true"></span></span>, ready to plan your day?</h1>
+                <h1 class="greeting-text">Hey <span id="userName" class="editable-name" contenteditable="true" spellcheck="false">Shayaan</span><span class="caret" aria-hidden="true"></span>, ready to plan your day?</h1>
                 <p class="subtitle">Things you can do</p>
             </div>
             
@@ -34,20 +36,13 @@
         </header>
 
         <nav class="pill-navigation">
-            <button class="pill-btn active" data-day="yesterday">
-                <span class="pill-text">Yesterday</span>
-                <span class="pill-count" id="yesterdayCount">0</span>
-            </button>
-            <button class="pill-btn" data-day="today">
+            <button class="pill-btn active" data-day="today">
                 <span class="pill-text">Today</span>
                 <span class="pill-count" id="todayCount">0</span>
             </button>
             <button class="pill-btn" data-day="tomorrow">
                 <span class="pill-text">Tomorrow</span>
                 <span class="pill-count" id="tomorrowCount">0</span>
-            </button>
-            <button class="pill-btn" data-day="history">
-                <span class="pill-text">History</span>
             </button>
         </nav>
 
@@ -149,26 +144,25 @@
                 </div>
             </div>
             <div class="ambient-controls">
-                <button class="ambient-control" id="ambientPlayPause">▶️</button>
-                <input type="range" class="ambient-volume" id="ambientVolume" min="0" max="1" step="0.01" value="0.5">
+                <input type="range" class="ambient-volume" id="ambientVolume" min="0" max="1" step="0.01" value="0.5" title="Volume">
             </div>
             <div class="ambient-sounds">
-                <button class="ambient-sound" data-sound="bird">🐦</button>
-                <button class="ambient-sound" data-sound="rain">🌧️</button>
-                <button class="ambient-sound" data-sound="rainThunder">⛈️</button>
-                <button class="ambient-sound" data-sound="crickets">🦗</button>
+                <button class="ambient-sound" data-sound="bird">Birds</button>
+                <button class="ambient-sound" data-sound="rain">Rain</button>
+                <button class="ambient-sound" data-sound="rainThunder">Storm</button>
+                <button class="ambient-sound" data-sound="crickets">Crickets</button>
+                <button class="ambient-sound" data-sound="cafe">Cafe</button>
             </div>
         </div>
     </div>
     
-    <audio id="websiteOpenSound" src="sounds/website-open.mp3"></audio>
-    <audio id="taskAddSound" src="sounds/task-add.mp3"></audio>
     <audio id="allTasksFinishedSound" src="sounds/all-tasks-finished.mp3"></audio>
     <audio id="timerStartSound" src="sounds/timer-start.mp3"></audio>
     <audio id="birdSound" src="sounds/birds.mp3" loop></audio>
     <audio id="rainSound" src="sounds/rain.mp3" loop></audio>
     <audio id="rainThunderSound" src="sounds/rain+thunder.mp3" loop></audio>
     <audio id="cricketsSound" src="sounds/crickets.mp3" loop></audio>
+    <audio id="cafeSound" src="sounds/cafe.mp3" loop></audio>
 
     <script src="script.js"></script>
 </body>

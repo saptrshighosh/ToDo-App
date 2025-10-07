@@ -4,7 +4,6 @@ class TodoApp {
         this.tasks = this.loadTasks();
         this.currentDay = 'today';
         this.isDarkMode = this.loadTheme();
-        this.historyPeriod = 'week';
         
         this.soundPlayer = new SoundPlayer();
         this.initializeElements();
@@ -17,7 +16,7 @@ class TodoApp {
         this.pomodoroTimer = new PomodoroTimer(this.soundPlayer);
         this.ambientPlayer = new AmbientPlayer(this.soundPlayer);
         
-        this.soundPlayer.play('websiteOpen', 20);
+        this.checkDate();
     }
 
     initializeElements() {
@@ -29,17 +28,12 @@ class TodoApp {
         this.currentDayElement = document.getElementById('currentDay');
         this.currentDateElement = document.getElementById('currentDate');
         this.pillButtons = document.querySelectorAll('.pill-btn');
-        this.historySection = document.getElementById('historySection');
-        this.currentDaySection = document.getElementById('currentDaySection');
-        this.historyContent = document.getElementById('historyContent');
-        this.filterButtons = document.querySelectorAll('.filter-btn');
         this.userNameEl = document.getElementById('userName');
         
         // Stats elements
         this.totalTasksElement = document.getElementById('totalTasks');
         this.completedTasksElement = document.getElementById('completedTasks');
         this.remainingTasksElement = document.getElementById('remainingTasks');
-        this.yesterdayCountElement = document.getElementById('yesterdayCount');
         this.todayCountElement = document.getElementById('todayCount');
         this.tomorrowCountElement = document.getElementById('tomorrowCount');
     }
@@ -66,18 +60,11 @@ class TodoApp {
             });
         });
         
-        // History filters
-        this.filterButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const period = e.target.dataset.period;
-                this.switchHistoryPeriod(period);
-            });
-        });
         // Editable username
         if (this.userNameEl) {
             const saved = localStorage.getItem('todoUserName');
             if (saved && saved.trim()) this.userNameEl.textContent = saved.trim();
-            this.userNameEl.addEventListener('input', () => this.queueNameSave());
+            // FIXED: Removed the 'input' event listener that caused the cursor bug.
             this.userNameEl.addEventListener('blur', () => this.saveNameNow());
             this.userNameEl.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') { e.preventDefault(); this.userNameEl.blur(); }
@@ -89,19 +76,13 @@ class TodoApp {
         this.initPointerInteractions();
     }
 
-    // Debounced saving of the editable name
-    queueNameSave() {
-        clearTimeout(this._nameTimer);
-        this._nameTimer = setTimeout(() => this.saveNameNow(), 400);
-    }
-
     saveNameNow() {
         if (!this.userNameEl) return;
         const name = this.userNameEl.textContent.replace(/\s+/g, ' ').trim();
         const sanitized = name.slice(0, 36);
         if (!sanitized) {
-            this.userNameEl.textContent = ' ';
-            localStorage.setItem('todoUserName', ' ');
+            this.userNameEl.textContent = 'Shayaan'; // Default name if empty
+            localStorage.setItem('todoUserName', 'Shayaan');
             return;
         }
         this.userNameEl.textContent = sanitized;
@@ -159,20 +140,13 @@ class TodoApp {
         const text = this.taskInput.value.trim();
         if (!text) return;
 
-        this.soundPlayer.play('taskAdd');
         const now = new Date();
         const task = {
             id: Date.now(),
             text: text,
             completed: false,
             day: this.currentDay,
-            createdAt: now.toISOString(),
-            completedAt: null,
-            timeAdded: now.toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
-                minute: '2-digit',
-                hour12: true 
-            })
+            createdAt: now.toISOString()
         };
 
         this.tasks.push(task);
@@ -211,28 +185,28 @@ class TodoApp {
         this.updateStats();
     }
 
+    editTask(taskId, newText) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.text = newText.trim();
+            this.saveTasks();
+            this.renderTasks();
+        }
+    }
+
     // Day Management
     switchDay(day) {
         this.currentDay = day;
         this.updateDayDisplay();
         this.updatePillButtons();
-        
-        if (day === 'history') {
-            this.showHistory();
-        } else {
-            this.showCurrentDay();
-            this.renderTasks();
-        }
-        
+        this.renderTasks();
         this.updateStats();
     }
 
     updateDayDisplay() {
         const dayNames = {
-            'yesterday': 'YESTERDAY',
             'today': 'TODAY',
-            'tomorrow': 'TOMORROW',
-            'history': 'HISTORY'
+            'tomorrow': 'TOMORROW'
         };
         
         this.currentDayElement.textContent = dayNames[this.currentDay] || 'TODAY';
@@ -241,124 +215,6 @@ class TodoApp {
     updatePillButtons() {
         this.pillButtons.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.day === this.currentDay);
-        });
-    }
-
-    showHistory() {
-        this.currentDaySection.style.display = 'none';
-        this.historySection.style.display = 'block';
-        this.renderHistory();
-    }
-
-    showCurrentDay() {
-        this.currentDaySection.style.display = 'block';
-        this.historySection.style.display = 'none';
-    }
-
-    // History Management
-    switchHistoryPeriod(period) {
-        this.historyPeriod = period;
-        this.updateFilterButtons();
-        this.renderHistory();
-    }
-
-    updateFilterButtons() {
-        this.filterButtons.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.period === this.historyPeriod);
-        });
-    }
-
-    renderHistory() {
-        const historyData = this.getHistoryData();
-        
-        if (historyData.length === 0) {
-            this.historyContent.innerHTML = `
-                <div class="empty-state">
-                    <p>No history available for this period</p>
-                    <p class="empty-hint">Complete some tasks to see your progress!</p>
-                </div>
-            `;
-            return;
-        }
-
-        this.historyContent.innerHTML = historyData.map(dayData => `
-            <div class="history-day">
-                <div class="history-day-header">
-                    <h3 class="history-day-name">${dayData.dayName}</h3>
-                    <div class="history-day-stats">
-                        <span>${dayData.total} total</span>
-                        <span>${dayData.completed} completed</span>
-                        <span>${dayData.remaining} remaining</span>
-                    </div>
-                </div>
-                <div class="history-tasks">
-                    ${dayData.tasks.map(task => `
-                        <div class="history-task ${task.completed ? 'completed' : ''}">
-                            <span class="history-task-text">${this.escapeHtml(task.text)}</span>
-                            <span class="history-task-time">${task.timeAdded}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    getHistoryData() {
-        const now = new Date();
-        const days = [];
-        
-        let startDate, endDate;
-        
-        switch (this.historyPeriod) {
-            case 'week':
-                startDate = new Date(now);
-                startDate.setDate(now.getDate() - 7);
-                endDate = now;
-                break;
-            case 'month':
-                startDate = new Date(now);
-                startDate.setMonth(now.getMonth() - 1);
-                endDate = now;
-                break;
-            case 'all':
-                startDate = new Date(0);
-                endDate = now;
-                break;
-        }
-        
-        // Group tasks by day
-        const tasksByDay = {};
-        
-        this.tasks.forEach(task => {
-            const taskDate = new Date(task.createdAt);
-            if (taskDate >= startDate && taskDate <= endDate) {
-                const dayKey = taskDate.toDateString();
-                if (!tasksByDay[dayKey]) {
-                    tasksByDay[dayKey] = [];
-                }
-                tasksByDay[dayKey].push(task);
-            }
-        });
-        
-        // Convert to array and sort
-        return Object.keys(tasksByDay)
-            .sort((a, b) => new Date(b) - new Date(a))
-            .map(dayKey => {
-                const dayTasks = tasksByDay[dayKey];
-                const dayDate = new Date(dayKey);
-                const dayName = dayDate.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    month: 'short', 
-                    day: 'numeric' 
-                });
-                
-                return {
-                    dayName,
-                    tasks: dayTasks.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
-                    total: dayTasks.length,
-                    completed: dayTasks.filter(t => t.completed).length,
-                    remaining: dayTasks.filter(t => !t.completed).length
-                };
         });
     }
 
@@ -380,8 +236,7 @@ class TodoApp {
             <div class="task-item" data-task-id="${task.id}" draggable="true">
                 <div class="task-checkbox ${task.completed ? 'checked' : ''}" 
                      onclick="todoApp.toggleTask(${task.id})"></div>
-                <span class="task-text ${task.completed ? 'completed' : ''}">${this.escapeHtml(task.text)}</span>
-                <span class="task-time">${task.timeAdded}</span>
+                <span class="task-text ${task.completed ? 'completed' : ''}" contenteditable="true" onblur="todoApp.editTask(${task.id}, this.textContent)">${this.escapeHtml(task.text)}</span>
                 <button class="task-delete" onclick="todoApp.deleteTask(${task.id})" aria-label="Delete">Delete</button>
             </div>
         `).join('');
@@ -432,32 +287,11 @@ class TodoApp {
     }
 
     getCurrentDayTasks() {
-        if (this.currentDay === 'yesterday') {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            return this.tasks.filter(task => {
-                const taskDate = new Date(task.createdAt);
-                return taskDate.toDateString() === yesterday.toDateString();
-            });
-        } else if (this.currentDay === 'tomorrow') {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            return this.tasks.filter(task => {
-                const taskDate = new Date(task.createdAt);
-                return taskDate.toDateString() === tomorrow.toDateString();
-            });
-        } else {
-            const today = new Date();
-            return this.tasks.filter(task => {
-                const taskDate = new Date(task.createdAt);
-                return taskDate.toDateString() === today.toDateString();
-            });
-        }
+        return this.tasks.filter(task => task.day === this.currentDay);
     }
 
     getDayDisplayName() {
         const names = {
-            'yesterday': 'Yesterday',
             'today': 'Today',
             'tomorrow': 'Tomorrow'
         };
@@ -465,13 +299,11 @@ class TodoApp {
     }
 
     updateStats() {
-        const yesterdayTasks = this.getTasksForDay('yesterday');
-        const todayTasks = this.getTasksForDay('today');
-        const tomorrowTasks = this.getTasksForDay('tomorrow');
+        const todayTasks = this.tasks.filter(task => task.day === 'today');
+        const tomorrowTasks = this.tasks.filter(task => task.day === 'tomorrow');
         const currentTasks = this.getCurrentDayTasks();
         
         // Update pill counts
-        this.yesterdayCountElement.textContent = yesterdayTasks.length;
         this.todayCountElement.textContent = todayTasks.length;
         this.tomorrowCountElement.textContent = tomorrowTasks.length;
         
@@ -483,30 +315,6 @@ class TodoApp {
         this.totalTasksElement.textContent = total;
         this.completedTasksElement.textContent = completed;
         this.remainingTasksElement.textContent = remaining;
-    }
-
-    getTasksForDay(day) {
-        if (day === 'yesterday') {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            return this.tasks.filter(task => {
-                const taskDate = new Date(task.createdAt);
-                return taskDate.toDateString() === yesterday.toDateString();
-            });
-        } else if (day === 'tomorrow') {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            return this.tasks.filter(task => {
-                const taskDate = new Date(task.createdAt);
-                return taskDate.toDateString() === tomorrow.toDateString();
-            });
-        } else {
-            const today = new Date();
-            return this.tasks.filter(task => {
-                const taskDate = new Date(task.createdAt);
-                return taskDate.toDateString() === today.toDateString();
-            });
-        }
     }
 
     showEditingAnimation() {
@@ -538,7 +346,6 @@ class TodoApp {
         this.themeToggle.classList.toggle('active', this.isDarkMode);
         this.updateDayDisplay();
         this.updatePillButtons();
-        this.updateFilterButtons();
         this.renderTasks();
         this.updateStats();
     }
@@ -564,87 +371,23 @@ class TodoApp {
 
     loadTasks() {
         const saved = localStorage.getItem('todoTasks');
-        if (saved) {
-            return JSON.parse(saved);
-        } else {
-            return this.getDefaultTasks();
-        }
+        return saved ? JSON.parse(saved) : [];
     }
-
-    getDefaultTasks() {
-        const now = new Date();
-        const yesterday = new Date(now);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    checkDate() {
+        const lastVisit = localStorage.getItem('lastVisit');
+        const today = new Date().toDateString();
         
-        return [
-            {
-                id: 1,
-                text: '5km run',
-                completed: true,
-                day: 'today',
-                createdAt: now.toISOString(),
-                completedAt: now.toISOString(),
-                timeAdded: now.toLocaleTimeString('en-US', { 
-                    hour: 'numeric', 
-                    minute: '2-digit',
-                    hour12: true 
-                })
-            },
-            {
-                id: 2,
-                text: 'Read 10 pages',
-                completed: false,
-                day: 'today',
-                createdAt: now.toISOString(),
-                completedAt: null,
-                timeAdded: now.toLocaleTimeString('en-US', { 
-                    hour: 'numeric', 
-                    minute: '2-digit',
-                    hour12: true 
-                })
-            },
-            {
-                id: 3,
-                text: 'Walk the dog',
-                completed: false,
-                day: 'today',
-                createdAt: now.toISOString(),
-                completedAt: null,
-                timeAdded: now.toLocaleTimeString('en-US', { 
-                    hour: 'numeric', 
-                    minute: '2-digit',
-                    hour12: true 
-                })
-            },
-            {
-                id: 4,
-                text: 'Get groceries',
-                completed: false,
-                day: 'today',
-                createdAt: now.toISOString(),
-                completedAt: null,
-                timeAdded: now.toLocaleTimeString('en-US', { 
-                    hour: 'numeric', 
-                    minute: '2-digit',
-                    hour12: true 
-                })
-            },
-            {
-                id: 5,
-                text: 'Design a to-do app',
-                completed: false,
-                day: 'today',
-                createdAt: now.toISOString(),
-                completedAt: null,
-                timeAdded: now.toLocaleTimeString('en-US', { 
-                    hour: 'numeric', 
-                    minute: '2-digit',
-                    hour12: true 
-                })
-            }
-        ];
+        if (lastVisit !== today) {
+            this.tasks.forEach(task => {
+                if (task.day === 'tomorrow') {
+                    task.day = 'today';
+                }
+            });
+            this.saveTasks();
+        }
+        
+        localStorage.setItem('lastVisit', today);
     }
 
     // Utility
@@ -677,7 +420,8 @@ class PomodoroTimer {
         this.circumference = this.radius * 2 * Math.PI;
         this.progressCircle.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
 
-        this.state = 'idle'; // idle, focus, shortBreak, longBreak
+        this.state = 'idle'; // idle, running, paused
+        this.mode = 'focus'; // focus, shortBreak, longBreak
         this.timer = null;
         this.timeLeft = 0;
         this.totalTime = 0;
@@ -690,10 +434,10 @@ class PomodoroTimer {
 
     initEventListeners() {
         this.playPauseBtn.addEventListener('click', () => {
-            if (this.state === 'idle' || this.state === 'paused') {
-                this.start();
-            } else {
+            if (this.state === 'running') {
                 this.pause();
+            } else {
+                this.start();
             }
         });
         
@@ -711,18 +455,19 @@ class PomodoroTimer {
     
     start() {
         if (this.state === 'idle') {
-            this.state = 'focus';
             this.timeLeft = this.duration * 60;
             this.totalTime = this.timeLeft;
-            this.soundPlayer.play('timerStart', 5);
         }
-        
+
+        this.state = 'running';
         this.playPauseBtn.textContent = '⏸️';
+        this.soundPlayer.play('timerStart');
+        
         this.timer = setInterval(() => {
             this.timeLeft--;
             this.updateDisplay();
             if (this.timeLeft <= 0) {
-                this.nextState();
+                this.nextMode();
             }
         }, 1000);
     }
@@ -736,6 +481,7 @@ class PomodoroTimer {
     reset() {
         clearInterval(this.timer);
         this.state = 'idle';
+        this.mode = 'focus';
         this.timeLeft = this.duration * 60;
         this.totalTime = this.timeLeft;
         this.pomodoros = 0;
@@ -743,27 +489,26 @@ class PomodoroTimer {
         this.playPauseBtn.textContent = '▶️';
     }
     
-    nextState() {
+    nextMode() {
         clearInterval(this.timer);
+        this.soundPlayer.play('timerStart');
         
-        if (this.state === 'focus') {
+        if (this.mode === 'focus') {
             this.pomodoros++;
-            this.soundPlayer.play('timerStart', 5);
             if (this.pomodoros % 4 === 0) {
-                this.state = 'longBreak';
+                this.mode = 'longBreak';
                 this.timeLeft = this.longBreak * 60;
             } else {
-                this.state = 'shortBreak';
+                this.mode = 'shortBreak';
                 this.timeLeft = this.shortBreak * 60;
             }
-            this.soundPlayer.play('timerStart', 5);
         } else {
-            this.state = 'focus';
+            this.mode = 'focus';
             this.timeLeft = this.duration * 60;
-            this.soundPlayer.play('timerStart', 5);
         }
         
         this.totalTime = this.timeLeft;
+        this.state = 'idle';
         this.updateDisplay();
         this.start();
     }
@@ -774,7 +519,7 @@ class PomodoroTimer {
         this.timeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         
         const offset = this.circumference - (this.timeLeft / this.totalTime) * this.circumference;
-        this.progressCircle.style.strokeDashoffset = offset;
+        this.progressCircle.style.strokeDashoffset = isFinite(offset) ? offset : this.circumference;
     }
     
     toggleSettings() {
@@ -787,9 +532,9 @@ class PomodoroTimer {
     }
     
     saveSettings() {
-        this.duration = parseInt(this.durationInput.value);
-        this.shortBreak = parseInt(this.shortBreakInput.value);
-        this.longBreak = parseInt(this.longBreakInput.value);
+        this.duration = parseInt(this.durationInput.value) || 25;
+        this.shortBreak = parseInt(this.shortBreakInput.value) || 5;
+        this.longBreak = parseInt(this.longBreakInput.value) || 15;
         
         localStorage.setItem('pomodoroSettings', JSON.stringify({
             duration: this.duration,
@@ -846,37 +591,28 @@ class AmbientPlayer {
         this.soundPlayer = soundPlayer;
         this.container = document.getElementById('ambientContainer');
         this.header = document.getElementById('ambientHeader');
-        this.playPauseBtn = document.getElementById('ambientPlayPause');
         this.volumeSlider = document.getElementById('ambientVolume');
         this.soundBtns = document.querySelectorAll('.ambient-sound');
         this.pinBtn = document.getElementById('ambientPin');
         this.closeBtn = document.getElementById('ambientClose');
 
-        this.currentSound = null;
-        this.isPlaying = false;
+        // NEW: Use a Set to track multiple active sounds
+        this.activeSounds = new Set();
         
         this.initEventListeners();
         this.makeDraggable();
     }
 
     initEventListeners() {
-        this.playPauseBtn.addEventListener('click', () => {
-            if (this.isPlaying) {
-                this.pause();
-            } else {
-                this.play();
-            }
-        });
-
         this.volumeSlider.addEventListener('input', (e) => {
             this.soundPlayer.setVolume(e.target.value);
         });
 
+        // REWRITTEN: New logic for multi-sound toggle
         this.soundBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                this.setSound(btn.dataset.sound);
-                this.soundBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                const soundName = btn.dataset.sound;
+                this.toggleSound(soundName, btn);
             });
         });
 
@@ -884,28 +620,19 @@ class AmbientPlayer {
         this.closeBtn.addEventListener('click', () => this.container.style.display = 'none');
     }
 
-    play() {
-        if (this.currentSound) {
-            this.soundPlayer.play(this.currentSound, null, true);
-            this.isPlaying = true;
-            this.playPauseBtn.textContent = '⏸️';
+    toggleSound(soundName, btn) {
+        if (this.activeSounds.has(soundName)) {
+            // Sound is playing, so stop it
+            this.soundPlayer.stop(soundName);
+            this.activeSounds.delete(soundName);
+            btn.classList.remove('active');
+        } else {
+            // Sound is not playing, so start it
+            // The 'true' argument enables looping
+            this.soundPlayer.play(soundName, null, true);
+            this.activeSounds.add(soundName);
+            btn.classList.add('active');
         }
-    }
-
-    pause() {
-        if (this.currentSound) {
-            this.soundPlayer.stop(this.currentSound);
-            this.isPlaying = false;
-            this.playPauseBtn.textContent = '▶️';
-        }
-    }
-
-    setSound(soundName) {
-        if (this.currentSound) {
-            this.pause();
-        }
-        this.currentSound = soundName;
-        this.play();
     }
     
     togglePin() {
@@ -946,14 +673,13 @@ class AmbientPlayer {
 class SoundPlayer {
     constructor() {
         this.sounds = {
-            websiteOpen: document.getElementById('websiteOpenSound'),
-            taskAdd: document.getElementById('taskAddSound'),
             allTasksFinished: document.getElementById('allTasksFinishedSound'),
             timerStart: document.getElementById('timerStartSound'),
             bird: document.getElementById('birdSound'),
             rain: document.getElementById('rainSound'),
             rainThunder: document.getElementById('rainThunderSound'),
             crickets: document.getElementById('cricketsSound'),
+            cafe: document.getElementById('cafeSound'),
         };
         this.activeSounds = {};
     }
@@ -1035,8 +761,8 @@ function addInteractiveEffects() {
         }
         
         // Number keys for quick navigation
-        if (e.key >= '1' && e.key <= '4') {
-            const dayMap = ['yesterday', 'today', 'tomorrow', 'history'];
+        if (e.key >= '1' && e.key <= '2') {
+            const dayMap = ['today', 'tomorrow'];
             const day = dayMap[parseInt(e.key) - 1];
             if (day) {
                 todoApp.switchDay(day);
