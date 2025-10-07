@@ -1,48 +1,57 @@
-# To-Do list webapp
+# To-Do List Web Application
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2f53077a-3104-4e3c-bc58-3b9c591bd821" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/3c0d12ed-680d-4bf7-9386-fa2f009c0f7d" />
 
-A simple yet powerful to-do list application designed to help you organize your day and stay focused.
+A simple yet powerful task management application designed to help organize daily activities and maintain productivity.
 
-## Core Features
+## Overview
 
-### ✅ Task Management
-* **Plan Ahead**: Easily add tasks for both **"Today"** and **"Tomorrow"**.
-* **Stay Organized**: Mark tasks as complete, edit them directly by clicking on the text, or delete them when you're done.
-* **Prioritize with Ease**: **Drag and drop** your tasks to reorder them however you like.
-* **Automatic Day Rollover**: Tasks you've set for "Tomorrow" will automatically move to the "Today" list when the day changes.
-* **Persistent Storage**: Your tasks, name, and theme preference are all saved in your browser's local storage, so they'll be there when you come back.
+This web application provides comprehensive task management capabilities with built-in productivity tools. Tasks are automatically saved to browser local storage, ensuring persistence across sessions.
 
-### 🎨 Personalization & UI
-* **Personal Greeting**: You can **edit the name** at the top for a personalized welcome.
-* **Light & Dark Modes**: Switch between a beautiful Light and a sleek Dark theme to suit your preference.
-* **Interactive Background**: Enjoy a relaxing, interactive **water-orb animation** that gently floats in the background.
-* **Responsive Design**: The app features a clean, modern interface that looks great and works perfectly on any device, from desktops to mobile phones.
+## Features
 
-### 🍅 Pomodoro Timer
-* **Boost Productivity**: A fully functional, built-in **Pomodoro timer** helps you stay focused.
-* **Classic Cycle**: It follows the traditional Pomodoro technique with focus sessions, short breaks, and a longer break after four completed focus sessions.
-* **Customizable Durations**: You can easily change the length of the focus, short break, and long break periods in the settings.
-* **Draggable & Pinnable**: The timer window can be **dragged anywhere** on the screen and "pinned" to lock it in place.
+### Task Management
+* Add tasks for today and tomorrow with automatic date-based organization
+* Mark tasks as complete or delete them when finished
+* Edit task text by clicking directly on the content
+* Reorder tasks using drag-and-drop functionality
+* Automatic task migration from tomorrow to today at day changeover
+* Persistent storage using browser local storage
 
-### 🎧 Ambient Sound Player
-* **Create Your Atmosphere**: Set the perfect mood for work or relaxation with the built-in ambient sound player.
-* **Layer Sounds**: The player's best feature—you can **play multiple sounds at once** to create a custom soundscape (like combining Rain + Cafe).
-* **Looping Audio**: Choose from several high-quality, looping sounds: **Birds, Rain, Storm, Crickets, and Cafe**.
-* **Volume Control**: Adjust the master volume for all playing sounds with a simple slider.
-* **Draggable & Pinnable**: Just like the timer, this window is also fully draggable and can be pinned.
+### User Interface
+* Toggle between light and dark themes
+* Personalized greeting with editable name field
+* Interactive water-orb background animation
+* Fully responsive design optimized for desktop
+* Clean, modern interface with intuitive navigation
 
-### Note on Sound Files
+### Pomodoro Timer
+* Built-in timer following the traditional Pomodoro technique
+* Configurable durations for focus sessions, short breaks, and long breaks
+* Automatic progression through work-break cycles
+* Draggable and pinnable timer window for flexible positioning
 
-Please note that the MP3 files for the ambient sound player are **not included** in this project due to their large size. To get the sound player working, you'll need to add your own audio files. Here’s how:
+### Ambient Sound Player
+* Multiple ambient sounds: birds, rain, storm, crickets, and cafe
+* Simultaneous playback of multiple sound tracks
+* Master volume control for all active sounds
+* High-quality looping audio tracks
+* Draggable and pinnable player window
 
-1.  In the main project folder, you will find the `sounds` fodler.
-2.  Find or download your preferred MP3 files for the ambient sounds. They work best if they are longer tracks that can be looped.
-3.  Rename your files **exactly** as listed below and place them inside the `sounds` folder you created:
-    * `birds.mp3`
-    * `rain.mp3`
-    * `rain+thunder.mp3`
-    * `crickets.mp3`
-    * `cafe.mp3`
+## Ambient Audio Files Setup
 
-### Thanks and I hope you enjoy and find this helpful. 
+Ambient Audio files are not included in this repository due to file size constraints. To enable the ambient sound player:
+
+* Find the `sounds` folder in the project root directory
+* Add the following MP3 files with exact filenames:
+  * `birds.mp3`
+  * `rain.mp3`
+  * `rain+thunder.mp3`
+  * `crickets.mp3`
+  * `cafe.mp3`
+
+For optimal experience, use longer audio tracks suitable for seamless looping.
+
+## License
+
+This project is open source and available under the MIT License.
