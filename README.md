@@ -1,38 +1,48 @@
-# To-Do List - Daily Planner
+# To-Do list webapp
 
-A simple, beautiful, and feature-rich to-do list application to help you organize your day.
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2f53077a-3104-4e3c-bc58-3b9c591bd821" />
 
-## Features ✨
+A simple yet powerful to-do list application designed to help you organize your day and stay focused.
 
-* **To-Do List**: Manage your tasks for yesterday, today, and tomorrow.
-* **History**: View your completed tasks and track your productivity.
-* **Customizable Name**: Personalize the greeting with your own name.
-* **Pomodoro Timer**: Stay focused with a built-in Pomodoro timer.
-* **Ambient Sounds**: Create a relaxing atmosphere with a selection of ambient sounds.
-* **Light/Dark Mode**: Switch between light and dark themes to suit your preference.
-* **Sound Effects**: Enjoy a more interactive experience with subtle sound effects.
-* **Draggable Widgets**: Move the Pomodoro timer and ambient sound player to your preferred position.
+## Core Features
 
-## How to Set Up 🚀
+### ✅ Task Management
+* **Plan Ahead**: Easily add tasks for both **"Today"** and **"Tomorrow"**.
+* **Stay Organized**: Mark tasks as complete, edit them directly by clicking on the text, or delete them when you're done.
+* **Prioritize with Ease**: **Drag and drop** your tasks to reorder them however you like.
+* **Automatic Day Rollover**: Tasks you've set for "Tomorrow" will automatically move to the "Today" list when the day changes.
+* **Persistent Storage**: Your tasks, name, and theme preference are all saved in your browser's local storage, so they'll be there when you come back.
 
-This application is designed to be incredibly simple to set up. All you need is a web browser!
+### 🎨 Personalization & UI
+* **Personal Greeting**: You can **edit the name** at the top for a personalized welcome.
+* **Light & Dark Modes**: Switch between a beautiful Light and a sleek Dark theme to suit your preference.
+* **Interactive Background**: Enjoy a relaxing, interactive **water-orb animation** that gently floats in the background.
+* **Responsive Design**: The app features a clean, modern interface that looks great and works perfectly on any device, from desktops to mobile phones.
 
-1.  **Download the Files**: Click the green "Code" button on this GitHub page and select "Download ZIP".
-2.  **Unzip the Folder**: Find the downloaded ZIP file on your computer and unzip it. This will create a folder with all the application files.
-3.  **Open the App**: Open the unzipped folder and double-click on the `index.html` file. That's it! The application will open in your web browser.
+### 🍅 Pomodoro Timer
+* **Boost Productivity**: A fully functional, built-in **Pomodoro timer** helps you stay focused.
+* **Classic Cycle**: It follows the traditional Pomodoro technique with focus sessions, short breaks, and a longer break after four completed focus sessions.
+* **Customizable Durations**: You can easily change the length of the focus, short break, and long break periods in the settings.
+* **Draggable & Pinnable**: The timer window can be **dragged anywhere** on the screen and "pinned" to lock it in place.
 
-## How to Use the App 📝
+### 🎧 Ambient Sound Player
+* **Create Your Atmosphere**: Set the perfect mood for work or relaxation with the built-in ambient sound player.
+* **Layer Sounds**: The player's best feature—you can **play multiple sounds at once** to create a custom soundscape (like combining Rain + Cafe).
+* **Looping Audio**: Choose from several high-quality, looping sounds: **Birds, Rain, Storm, Crickets, and Cafe**.
+* **Volume Control**: Adjust the master volume for all playing sounds with a simple slider.
+* **Draggable & Pinnable**: Just like the timer, this window is also fully draggable and can be pinned.
 
-* **Change Your Name**: To change the name in the greeting, simply click on "Shayaan" and type your own name.
-* **Add a Task**: Type your to-do item in the input field at the bottom and click "Add".
-* **Complete a Task**: Click the checkbox next to a task to mark it as complete.
-* **Delete a Task**: Hover over a task and click the "Delete" button.
-* **Navigate Between Days**: Use the "Yesterday", "Today", "Tomorrow", and "History" buttons to view tasks for different days.
+### Note on Sound Files
 
-### Desktop Shortcut
+Please note that the MP3 files for the ambient sound player are **not included** in this project due to their large size. To get the sound player working, you'll need to add your own audio files. Here’s how:
 
-For easier access, you can create a desktop shortcut that opens the app directly.
+1.  In the main project folder, you will find the `sounds` fodler.
+2.  Find or download your preferred MP3 files for the ambient sounds. They work best if they are longer tracks that can be looped.
+3.  Rename your files **exactly** as listed below and place them inside the `sounds` folder you created:
+    * `birds.mp3`
+    * `rain.mp3`
+    * `rain+thunder.mp3`
+    * `crickets.mp3`
+    * `cafe.mp3`
 
-1.  **Right-click on your desktop** and go to **New > Shortcut**.
-2.  In the "Type the location of the item" field, click **Browse...** and navigate to the `index.html` file inside the project folder.
-3.  Click **Next**, give your shortcut a name (e.g., "To-Do App"), and click **Finish**.
+### Thanks and I hope you enjoy and find this helpful. 
