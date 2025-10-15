@@ -232,57 +232,52 @@ class TodoApp {
             return;
         }
 
-        this.taskList.innerHTML = currentDayTasks.map(task => `
-            <div class="task-item" data-task-id="${task.id}" draggable="true">
+        this.taskList.innerHTML = currentDayTasks.map((task, index) => {
+            const isFirst = index === 0;
+            const isLast = index === currentDayTasks.length - 1;
+            return `
+            <div class="task-item" data-task-id="${task.id}">
                 <div class="task-checkbox ${task.completed ? 'checked' : ''}" 
                      onclick="todoApp.toggleTask(${task.id})"></div>
-                <span class="task-text ${task.completed ? 'completed' : ''}" contenteditable="true" onblur="todoApp.editTask(${task.id}, this.textContent)">${this.escapeHtml(task.text)}</span>
+                <span class="task-text ${task.completed ? 'completed' : ''}" contenteditable="true" draggable="false" spellcheck="false" onblur="todoApp.editTask(${task.id}, this.textContent)">${this.escapeHtml(task.text)}</span>
+                <div class="task-actions">
+                    <button class="move-btn" onclick="todoApp.moveTaskUp(${task.id})" aria-label="Move up" ${isFirst ? 'disabled' : ''}>▲</button>
+                    <button class="move-btn" onclick="todoApp.moveTaskDown(${task.id})" aria-label="Move down" ${isLast ? 'disabled' : ''}>▼</button>
+                </div>
                 <button class="task-delete" onclick="todoApp.deleteTask(${task.id})" aria-label="Delete">Delete</button>
             </div>
-        `).join('');
-
-        // Enable drag & drop reordering
-        this.enableDragAndDrop();
+        `;}).join('');
     }
 
-    enableDragAndDrop() {
-        const items = this.taskList.querySelectorAll('.task-item');
-        let dragSrcEl = null;
-        items.forEach(item => {
-            item.addEventListener('dragstart', (e) => {
-                dragSrcEl = item;
-                item.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', item.dataset.taskId);
-            });
-            item.addEventListener('dragend', () => {
-                item.classList.remove('dragging');
-                this.persistOrder();
-            });
-            item.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                const dragging = this.taskList.querySelector('.dragging');
-                if (!dragging || dragging === item) return;
-                const rect = item.getBoundingClientRect();
-                const offset = e.clientY - rect.top;
-                const insertBefore = offset < rect.height / 2;
-                if (insertBefore) {
-                    this.taskList.insertBefore(dragging, item);
-                } else {
-                    this.taskList.insertBefore(dragging, item.nextSibling);
-                }
-            });
-        });
+    moveTaskUp(taskId) {
+        this.reorderTask(taskId, -1);
     }
 
-    persistOrder() {
-        const idsInDom = Array.from(this.taskList.querySelectorAll('.task-item')).map(el => parseInt(el.dataset.taskId, 10));
+    moveTaskDown(taskId) {
+        this.reorderTask(taskId, 1);
+    }
+
+    reorderTask(taskId, direction) {
         const currentTasks = this.getCurrentDayTasks();
-        const otherTasks = this.tasks.filter(t => !currentTasks.includes(t));
-        const idToTask = new Map(currentTasks.map(t => [t.id, t]));
-        const reordered = idsInDom.map(id => idToTask.get(id)).filter(Boolean);
-        this.tasks = [...otherTasks, ...reordered];
+        const index = currentTasks.findIndex(task => task.id === taskId);
+        if (index === -1) return;
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= currentTasks.length) return;
+
+        const globalIndices = this.tasks.reduce((acc, task, idx) => {
+            if (task.day === this.currentDay) acc.push(idx);
+            return acc;
+        }, []);
+
+        const taskGlobalIndex = globalIndices[index];
+        const targetGlobalIndex = globalIndices[newIndex];
+
+        const temp = this.tasks[taskGlobalIndex];
+        this.tasks[taskGlobalIndex] = this.tasks[targetGlobalIndex];
+        this.tasks[targetGlobalIndex] = temp;
+
         this.saveTasks();
+        this.renderTasks();
         this.updateStats();
     }
 
@@ -396,6 +391,7 @@ class TodoApp {
         div.textContent = text;
         return div.innerHTML;
     }
+
 }
 
 class PomodoroTimer {
@@ -577,8 +573,12 @@ class PomodoroTimer {
         this.header.addEventListener('mousedown', (e) => {
             if (this.container.classList.contains('pinned')) return;
             isDragging = true;
-            offsetX = e.clientX - this.container.offsetLeft;
-            offsetY = e.clientY - this.container.offsetTop;
+            const rect = this.container.getBoundingClientRect();
+            this.container.style.right = 'auto';
+            this.container.style.left = `${rect.left}px`;
+            this.container.style.top = `${rect.top}px`;
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
             document.body.style.userSelect = 'none';
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
@@ -748,6 +748,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function addInteractiveEffects() {
     // Add keyboard shortcuts
     document.addEventListener('keydown', (e) => {
+        const target = e.target;
+        const tag = target.tagName;
+        const isTypingField = (tag === 'INPUT' || tag === 'TEXTAREA') || target.isContentEditable;
+        if (isTypingField) return;
         // Ctrl/Cmd + D to toggle dark mode
         if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
             e.preventDefault();
